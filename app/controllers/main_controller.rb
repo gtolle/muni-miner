@@ -2,6 +2,10 @@ class MainController < ApplicationController
   def index
   end
 
+  def home
+
+  end
+
   def routes
     c = ActiveRecord::Base.connection
     routes = c.select_all "SELECT route, direction FROM stops GROUP BY route, direction ORDER BY route, direction"
