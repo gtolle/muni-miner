@@ -10,13 +10,14 @@
 </div>
 <div id="controls">
   Color Route by:<br/><br/>
-  <input type="radio" class="delaychange" name="delaychange" value="dep_dev_mins_interp">Delay</input><br/><br/>
-  Red means:<br/> "bus is behind schedule"<br/><br/>
-  <input type="radio" class="delaychange" name="delaychange" value="dep_dev_mins_diff" checked="true">Change in Delay</input><br/><br/>
-  Red means:<br/> "bus got delayed here"<br/><br/>
+  <input type="radio" class="delaychange" name="delaychange" value="dep_dev_mins_diff" checked="true">Change in Delay</input><br/>
+  <input type="radio" class="delaychange" name="delaychange" value="dep_dev_mins_interp">Delay</input><br/>
   <hr/>
-  Circles mean:<br/>
-  "passengers getting on or off"<br/>
+  Draw Circles by:<br/><br/>
+  <input type="radio" class="showmetric" name="showmetric" value="psgr_onoff" checked="true">Passenger Activity</input><br/>
+  <input type="radio" class="showmetric" name="showmetric" value="psgr_on">Passengers Getting On</input><br/>
+  <input type="radio" class="showmetric" name="showmetric" value="psgr_off">Passengers Getting Off</input><br/>
+  <input type="radio" class="showmetric" name="showmetric" value="psgr_load">Passengers On Bus</input><br/>
   <hr/>
   <div id="worststopsholder">
     Worst stops on route:

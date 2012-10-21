@@ -49,8 +49,10 @@ var direction;
 var trip_date;
 var trip;
 var stops;
+var allStops;
 
 var delaychange;
+var showmetric;
 
 var lines = [];
 var circles = [];
@@ -78,11 +80,26 @@ $(document).ready(function() {
     map = new google.maps.Map(canvas, myOptions);
 
     delaychange = "dep_dev_mins_diff";
-    //delaychange = "dep_dev_mins_interp";
 
     $(".delaychange").change(function(e) {
 	delaychange = this.value;
-	renderTrip(stops);
+	if (allStops.length > 0) {
+	    renderAllStops(allStops);
+	} else {
+	    renderTrip(stops);
+	}
+    });
+
+    showmetric = "psgr_onoff";
+    
+    $(".showmetric").change(function(e) {
+	showmetric = this.value;
+	console.log(stops);
+	if (allStops.length > 0) {
+	    renderAllStops(allStops);
+	} else {
+	    renderTrip(stops);
+	}
     });
 
     getRoutes();
@@ -108,15 +125,26 @@ function renderRoutes(routes) {
 	route = obj.data('route');
 	direction = obj.data('direction');
 	getTrips( obj.data('route'), obj.data('direction') );
+	getAllStops( obj.data('route'), obj.data('direction') );
     });
 }
 
-function getAllStops() {
+function getAllStops( route, direction ) {
     $.getJSON('/main/all_stops.json',
+	      {
+		  route: route,
+		  direction: direction
+	      },
 	      renderAllStops);
 }
 
-function renderAllStops(allStops) {
+function renderAllStops(allStopsPassed) {
+    clearLines();
+    clearCircles();
+    
+    allStops = allStopsPassed;
+    stops = [];
+
     var myRoute;
     var myDirection;
     var tripStops = [];
@@ -142,6 +170,9 @@ function renderAllStops(allStops) {
 
     // console.log("drawing new trip for " + myRoute + " " + myDirection);
     drawTrip(tripStops);
+    if ( route ) {
+	drawMetric(tripStops);
+    }
 }
 
 function getTrips(route, direction) {
@@ -215,14 +246,16 @@ function showTrip(route, direction, trip_date, trip) {
 function renderTrip(stopsPassed) {
     clearLines();
     clearCircles();
+    allStops = [];
 
     stops = stopsPassed;
-    drawTrip(stopsPassed);
+
+    drawTrip(stops);
     drawMetric(stops);
 }
 
 function drawTrip(stops) {
-   var lastStop = stops[0];
+    var lastStop = stops[0];
     var max = 0;
     var min = 0;
 
@@ -280,9 +313,18 @@ function drawTrip(stops) {
 
 function drawMetric(stops) {    
     $.each(stops, function( idx, stop ) {
-	
-	// var metric = stop.psgr_load;
-	var metric = parseFloat(stop.psgr_on) + parseFloat(stop.psgr_off);
+
+	var metric;
+
+	if ( showmetric === "psgr_onoff" ) {
+	    var metric = parseFloat(stop.psgr_on) + parseFloat(stop.psgr_off);
+	} else if ( showmetric === "psgr_on" ) {
+	    var metric = parseFloat(stop.psgr_on);
+	} else if ( showmetric === "psgr_off" ) {
+	    var metric = parseFloat(stop.psgr_off); 
+	} else if ( showmetric === "psgr_load" ) {
+	    var metric = parseFloat(stop.psgr_load);
+	}
 	
 	var normalized = metric / 30;
 	var radius = 500 * normalized;

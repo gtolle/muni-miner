@@ -16,16 +16,23 @@ class Stop < ActiveRecord::Base
   def self.get_worst_stops( route, direction )
     c = ActiveRecord::Base.connection
     # worst_stops = c.select_all "select route, direction, stop_name, stop_id, min(latitude) as latitude, min(longitude) as longitude, avg(dep_dev_mins_diff) * (sum(psgr_on) + sum(psgr_off)) as delay_metric from stops where route = #{c.quote(route)} and direction = #{c.quote(direction)} group by route, direction, stop_name, stop_id order by delay_metric limit 5"
+
     worst_stops = c.select_all "select route, direction, stop_name, stop_id, min(latitude) as latitude, min(longitude) as longitude, avg(dep_dev_mins_diff) * sum(psgr_load) as delay_metric from stops where route = #{c.quote(route)} and direction = #{c.quote(direction)} group by route, direction, stop_name, stop_id order by delay_metric limit 5"
+
     # worst_stops = c.select_all "select route, direction, stop_name, stop_id, min(latitude) as latitude, min(longitude) as longitude, avg(dep_dev_mins_diff) as delay_metric from stops where route = #{c.quote(route)} and direction = #{c.quote(direction)} group by route, direction, stop_name, stop_id order by delay_metric limit 10"
     return worst_stops
   end
 
-  def self.get_all_stops
+  def self.get_all_stops( route=nil, direction=nil )
     c = ActiveRecord::Base.connection
 
+    whereClause = ""
+    if not route.nil?
+      whereClause = "where route = #{c.quote(route)} and direction = #{c.quote(direction)}"
+    end
+
     # avg delay incurred
-    all_stops = c.select_all "select route, direction, stop_seq_id, min(stop_id) as stop_id, max(stop_id) as stop_id_max, min(stop_name) as stop_name, avg(latitude) as latitude, avg(longitude) as longitude, avg(dep_dev_mins_interp) as dep_dev_mins_interp, avg(dep_dev_mins_diff) as dep_dev_mins_diff, avg(psgr_on) as psgr_on, avg(psgr_off) as psgr_off from stops group by route, direction, stop_seq_id order by route, direction, stop_seq_id"
+    all_stops = c.select_all "select route, direction, stop_seq_id, min(stop_id) as stop_id, max(stop_id) as stop_id_max, min(stop_name) as stop_name, avg(latitude) as latitude, avg(longitude) as longitude, avg(dep_dev_mins_interp) as dep_dev_mins_interp, avg(dep_dev_mins_diff) as dep_dev_mins_diff, avg(psgr_on) as psgr_on, avg(psgr_off) as psgr_off, avg(psgr_load) as psgr_load from stops #{whereClause} group by route, direction, stop_seq_id order by route, direction, stop_seq_id"
 
     # worst delay incurred
     # all_stops = c.select_all "select route, direction, stop_seq_id, min(stop_id) as stop_id, max(stop_id) as stop_id_max, min(stop_name) as stop_name, min(latitude) as latitude, min(longitude) as longitude, min(dep_dev_mins_diff) as dep_dev_mins_diff from stops group by route, direction, stop_seq_id order by route, direction, stop_seq_id"
