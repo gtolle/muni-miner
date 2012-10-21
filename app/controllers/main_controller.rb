@@ -51,6 +51,15 @@ class MainController < ApplicationController
       }
     end
   end
+
+  def all_stops
+    all_stops = Stop.get_all_stops()
+    respond_to do |format|
+      format.json {
+        render :json => all_stops.to_json
+      }
+    end
+  end
  
   def trips_by_day_and_time
     

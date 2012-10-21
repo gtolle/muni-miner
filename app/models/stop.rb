@@ -21,6 +21,21 @@ class Stop < ActiveRecord::Base
     return worst_stops
   end
 
+  def self.get_all_stops
+    c = ActiveRecord::Base.connection
+
+    # avg delay incurred
+    all_stops = c.select_all "select route, direction, stop_seq_id, min(stop_id) as stop_id, max(stop_id) as stop_id_max, min(stop_name) as stop_name, avg(latitude) as latitude, avg(longitude) as longitude, avg(dep_dev_mins_interp) as dep_dev_mins_interp, avg(dep_dev_mins_diff) as dep_dev_mins_diff, avg(psgr_on) as psgr_on, avg(psgr_off) as psgr_off from stops group by route, direction, stop_seq_id order by route, direction, stop_seq_id"
+
+    # worst delay incurred
+    # all_stops = c.select_all "select route, direction, stop_seq_id, min(stop_id) as stop_id, max(stop_id) as stop_id_max, min(stop_name) as stop_name, min(latitude) as latitude, min(longitude) as longitude, min(dep_dev_mins_diff) as dep_dev_mins_diff from stops group by route, direction, stop_seq_id order by route, direction, stop_seq_id"
+
+    # stddev of delay incurred
+    # all_stops = c.select_all "select route, direction, stop_seq_id, min(stop_id) as stop_id, max(stop_id) as stop_id_max, min(stop_name) as stop_name, min(latitude) as latitude, min(longitude) as longitude, stddev(dep_dev_mins_diff) as dep_dev_mins_diff from stops group by route, direction, stop_seq_id order by route, direction, stop_seq_id"
+
+    return all_stops
+  end
+
   def self.print_values( stops )
     stops.each do |stop|
       puts "%30s%30s%30s(%10s)(%10s)(%10s)(%10s)" % [ stop.stop_name, 

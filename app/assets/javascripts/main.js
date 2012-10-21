@@ -66,7 +66,6 @@ $(document).ready(function() {
     if ( initialZoom == null ) { initialZoom = 12; }
     
     var initialLatLng = new google.maps.LatLng( initialLat, initialLng );
-    console.log(initialLatLng);
     
     var myOptions = {
 	zoom: initialZoom,
@@ -79,6 +78,7 @@ $(document).ready(function() {
     map = new google.maps.Map(canvas, myOptions);
 
     delaychange = "dep_dev_mins_diff";
+    //delaychange = "dep_dev_mins_interp";
 
     $(".delaychange").change(function(e) {
 	delaychange = this.value;
@@ -86,6 +86,7 @@ $(document).ready(function() {
     });
 
     getRoutes();
+    getAllStops();
 });
 
 function getRoutes() {
@@ -108,6 +109,39 @@ function renderRoutes(routes) {
 	direction = obj.data('direction');
 	getTrips( obj.data('route'), obj.data('direction') );
     });
+}
+
+function getAllStops() {
+    $.getJSON('/main/all_stops.json',
+	      renderAllStops);
+}
+
+function renderAllStops(allStops) {
+    var myRoute;
+    var myDirection;
+    var tripStops = [];
+
+    myRoute = allStops[0].route;
+    myDirection = allStops[0].direction;
+
+    for( i = 0; i < allStops.length; i++ ) {
+	var stop = allStops[i];
+	// console.log("looking at " + stop.route + " and " + stop.direction);
+
+	if (stop.route == myRoute && stop.direction == myDirection) {
+	    tripStops.push(stop);
+	} else {
+	    // console.log("drawing new trip for " + myRoute + " " + myDirection);
+	    drawTrip(tripStops);
+	    tripStops = [];
+	    myRoute = stop.route; 
+	    myDirection = stop.direction;
+	    tripStops.push(stop);
+	}
+    }
+
+    // console.log("drawing new trip for " + myRoute + " " + myDirection);
+    drawTrip(tripStops);
 }
 
 function getTrips(route, direction) {
@@ -154,6 +188,7 @@ function renderWorstStops(worstStops) {
     $.each(worstStops, function( idx, stop ) {
 	$("#worststops").append('<li>' + stop.stop_name + '</li>');
 	
+	/*
         var marker = new google.maps.Marker({
             map: map,
             clickable: false,
@@ -161,6 +196,8 @@ function renderWorstStops(worstStops) {
         });
 
 	markers.push(marker);
+*/
+
     });
 }
 
@@ -177,10 +214,15 @@ function showTrip(route, direction, trip_date, trip) {
 
 function renderTrip(stopsPassed) {
     clearLines();
+    clearCircles();
 
     stops = stopsPassed;
+    drawTrip(stopsPassed);
+    drawMetric(stops);
+}
 
-    var lastStop = stops[0];
+function drawTrip(stops) {
+   var lastStop = stops[0];
     var max = 0;
     var min = 0;
 
@@ -204,6 +246,10 @@ function renderTrip(stopsPassed) {
 	var stop = stops[i];
 	var metric = parseFloat(stop[metricName]);
 
+	if ( isNaN(metric) ) {
+	    continue;
+	}
+
 	if (metric < min) { metric = min; }
 	if (metric > max) { metric = max; }
 
@@ -215,12 +261,12 @@ function renderTrip(stopsPassed) {
 	var gradient_idx = Math.floor(normalized * (gradient.length-1));
 	var color = gradient[gradient_idx];
 
-	//console.log(i, stop.stop_seq_id, stop.latitude, stop.longitude, metric, normalized, gradient_idx, color);
+	// console.log(i, stop.stop_seq_id, stop.latitude, stop.longitude, metric, normalized, gradient_idx, color);
 
         var pl = new google.maps.Polyline({
             map: map,
             clickable: false,
-            strokeOpacity: 0.8,
+            strokeOpacity: 0.6,
             strokeWeight: 8,
             strokeColor: color,
             path: [ new google.maps.LatLng( lastStop.latitude, -lastStop.longitude ),
@@ -230,22 +276,18 @@ function renderTrip(stopsPassed) {
 	lines.push(pl);
 	lastStop = stop;
     }
-
-    renderMetric();
 }
 
-function renderMetric() {
-    clearCircles();
-
+function drawMetric(stops) {    
     $.each(stops, function( idx, stop ) {
-
+	
 	// var metric = stop.psgr_load;
-	var metric = stop.psgr_on + stop.psgr_off;
+	var metric = parseFloat(stop.psgr_on) + parseFloat(stop.psgr_off);
 	
 	var normalized = metric / 30;
 	var radius = 500 * normalized;
 
-	console.log(metric, normalized, radius);
+	// console.log("activity = " + metric + " norm = " + normalized + " rad = " + radius);
 
 	var c = new google.maps.Circle({
 	    map: map,
