@@ -7,7 +7,8 @@ gem 'rails', '3.2.8'
 
 gem 'pg'
 gem 'thin'
-gem 'mysql'
+# gem 'mysql'
+gem 'mysql2'
 # gem 'activerecord-mysql2-adapter'
 gem "twitter-bootstrap-rails"
 

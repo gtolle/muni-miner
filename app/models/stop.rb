@@ -11,7 +11,7 @@ class Stop < ActiveRecord::Base
     last_val = nil
     attr = attr.to_sym
 
-    stops.each do |stop|
+    stops.reverse.each do |stop|
       if stop[attr].nil?
         stop[attr] = last_val
       else
@@ -40,8 +40,10 @@ class Stop < ActiveRecord::Base
     stops.each do |stop|
       cur_val = stop[attr]
       if not last_val.nil?
-        stop[attr] = stop[attr] - last_val
-        last_val = cur_val
+        if not stop[attr].nil?
+          stop[attr] = stop[attr] - last_val
+          last_val = cur_val
+        end
       else
         last_val = stop[attr]
       end

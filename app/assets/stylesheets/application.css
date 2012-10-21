@@ -40,7 +40,7 @@ a.selected {
 
 #tripholder {
     float: left;
-    width: 200px;
+    width: 250px;
     height: 600px; 
     overflow-y: scroll;
     border: 1px solid gray;

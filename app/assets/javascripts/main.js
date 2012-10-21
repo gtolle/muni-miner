@@ -1,5 +1,3 @@
-var map;
-var lines = [];
 var gradient = ["#FF0000",
 		"#F30C00",
 		"#E71800",
@@ -44,10 +42,16 @@ var gradient = ["#FF0000",
 		"#000FF0",
 		"#0000FF"];
 
+var map;
+
 var route;
 var direction;
 var trip_date;
 var trip;
+var stops;
+
+var lines = [];
+var circles = [];
 
 $(document).ready(function() {
     var initialLat;
@@ -106,7 +110,7 @@ function getTrips(route, direction) {
 function renderTrips(trips) {
     $("#trips").empty();
     $.each(trips, function( idx, trip ) {
-	$("#trips").append('<li><a href="#" class="trip_link" data-trip-date="' + trip.trip_date + '" data-trip="' + trip.trip + '">' + trip.trip_date + ' ' + trip.trip + ' (' + trip.stops + ' stops)</a></li>');
+	$("#trips").append('<li><a href="#" class="trip_link" data-trip-date="' + trip.trip_date + '" data-trip="' + trip.trip + '">' + trip.act_dep_time + '</a></li>');
     });
     $(".trip_link").click(function(e) {
 	var obj = $(this);
@@ -127,23 +131,24 @@ function showTrip(route, direction, trip_date, trip) {
 	      renderTrip);
 }
 
-function renderTrip(stops) {
+function renderTrip(stopsPassed) {
     clearLines();
+
+    stops = stopsPassed;
 
     var lastStop = stops[0];
     var max = 0;
     var min = 0;
 
-    //var metricName = "psgr_load";
     var metricName = "dep_dev_mins";
 
-    min = -5;
-    max = 5;
-    
     /*
-    min = -1;
-    max = 1;
+    min = -10;
+    max = 10;
     */
+
+    min = -4;
+    max = 4;
 
     /*
     $.each(stops, function( idx, stop ) {
@@ -184,7 +189,7 @@ function renderTrip(stops) {
             map: map,
             clickable: false,
             strokeOpacity: 0.8,
-            strokeWeight: 5,
+            strokeWeight: 8,
             strokeColor: color,
             path: [ new google.maps.LatLng( lastStop.latitude, -lastStop.longitude ),
                     new google.maps.LatLng( stop.latitude, -stop.longitude ) ]
@@ -193,6 +198,37 @@ function renderTrip(stops) {
 	lines.push(pl);
 	lastStop = stop;
     }
+
+    renderMetric();
+}
+
+function renderMetric() {
+    clearCircles();
+
+    $.each(stops, function( idx, stop ) {
+
+	// var metric = stop.psgr_load;
+	var metric = stop.psgr_on + stop.psgr_off;
+	
+	var normalized = metric / 30;
+	var radius = 500 * normalized;
+
+	console.log(metric, normalized, radius);
+
+	var c = new google.maps.Circle({
+	    map: map,
+	    clickable: false,
+	    center: new google.maps.LatLng( stop.latitude, -stop.longitude ),
+	    radius: radius,
+	    strokeColor: "#0044FF",
+	    strokeOpacity: 0.2,
+	    strokeWeight: 3,
+	    fillColor: "#0044FF",
+	    fillOpacity: 0.2
+	});
+
+	circles.push(c);
+    });
 }
 
 function clearLines() {
@@ -204,3 +240,11 @@ function clearLines() {
     lines = [];
 }
 
+function clearCircles() {
+    for( var i = 0; i < circles.length; i++ ) {
+        var circle = circles[i];
+        circle.setMap(null);
+    }
+
+    circles = [];
+}
