@@ -306,7 +306,7 @@ function drawTrip(stops) {
         var pl = new google.maps.Polyline({
             map: map,
             clickable: false,
-            strokeWeight: 8,
+            strokeWeight: 12,
             strokeOpacity: 0.6,
 	    // strokeOpacity: normalized,
             strokeColor: color,
