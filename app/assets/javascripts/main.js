@@ -45,11 +45,12 @@ var gradient = ["#FF0000",
 var map;
 
 var route;
-var direction = 1;
+var direction;
 var trip_date;
 var trip;
 var stops;
 var allStops;
+var hour;
 
 var delaychange;
 var showmetric;
@@ -129,11 +130,12 @@ function renderRoutes(routes) {
     });
 }
 
-function getAllStops( route, direction ) {
+function getAllStops( route, direction, hour ) {
     $.getJSON('/main/all_stops.json',
 	      {
 		  route: route,
-		  direction: direction
+		  direction: direction,
+		  hour: hour
 	      },
 	      renderAllStops);
 }
@@ -262,15 +264,20 @@ function drawTrip(stops) {
     var metricName;
 
     if (delaychange == "dep_dev_mins_interp") {
-	var metricName = "dep_dev_mins_interp";
+	metricName = "dep_dev_mins_interp";
 	min = -10;
 	max = 10;
     } else {
-	var metricName = "dep_dev_mins_diff";
+	metricName = "dep_dev_mins_diff";
 	min = -4;
 	max = 4;
     }
 
+    /*
+    metricName = "delay_count";
+    min = 0;
+    max = 100;
+*/
     var range = max - min;
 
     var stop = stops[0];
@@ -299,9 +306,11 @@ function drawTrip(stops) {
         var pl = new google.maps.Polyline({
             map: map,
             clickable: false,
-            strokeOpacity: 0.6,
             strokeWeight: 8,
+            strokeOpacity: 0.6,
+	    // strokeOpacity: normalized,
             strokeColor: color,
+	    // strokeColor: blue,
             path: [ new google.maps.LatLng( lastStop.latitude, -lastStop.longitude ),
                     new google.maps.LatLng( stop.latitude, -stop.longitude ) ]
         });
@@ -324,6 +333,8 @@ function drawMetric(stops) {
 	    var metric = parseFloat(stop.psgr_off); 
 	} else if ( showmetric === "psgr_load" ) {
 	    var metric = parseFloat(stop.psgr_load);
+	} else if ( showmetric == "none" ) {
+	    return;
 	}
 	
 	var normalized = metric / 30;

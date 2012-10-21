@@ -53,7 +53,7 @@ class MainController < ApplicationController
   end
 
   def all_stops
-    all_stops = Stop.get_all_stops(params[:route], params[:direction])
+    all_stops = Stop.get_all_stops(params[:route], params[:direction], params[:hour])
     respond_to do |format|
       format.json {
         render :json => all_stops.to_json

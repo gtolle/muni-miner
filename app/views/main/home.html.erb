@@ -60,6 +60,9 @@
           parent.find('li').removeClass('active');
           $(this).parent().addClass('active'); 
 
+          hour = $(this).data('hour');
+          getAllStops( route, direction, hour );
+
         } else if (type == 'route') {
 
           parent.find('li').removeClass('active');
@@ -70,11 +73,12 @@
             getAllStops();
           } else {
             route = $(this).text();
-    	    getAllStops( route, direction );
+    	    getAllStops( route, direction, hour );
           }
 
       } else if (type == 'bound') {
 
+/*
           li = parent.find('.active');
           li.removeClass('active');
 
@@ -97,11 +101,13 @@
           if (pli.attr('data-bound') == 'Inbound') {
             pli.append('<span class="divider"> /</span>'); 
           }
+*/
 
-          direction = pli.attr('data-direction');
-          if ( route ) {
-            getAllStops( route, direction );
-          }
+          parent.find('li').removeClass('active');
+          $(this).parent().addClass('active'); 
+
+          direction = $(this).data('direction');
+          getAllStops( route, direction, hour );
 
         } else if (type == 'delaychange') {
 
@@ -187,33 +193,32 @@
   <div class="navbar-inner" style='padding:0px'>
 <ul class="nav" data-type='hour'>
 
-<li class="active"><a href='#'>All Hours</a></li>
+<li class="active"><a href='#' data-hour="">All Hours</a></li>
 
-<li>      <a href='#'>5:00AM</a></li>
-<li>      <a href='#'>6:00AM</a></li>
-<li>      <a href='#'>7:00AM</a></li>
-<li>      <a href='#'>8:00AM</a></li>
-<li>      <a href='#'>9:00AM</a></li>
-<li>      <a href='#'>10:00AM</a></li>
-<li>      <a href='#'>11:00AM</a></li>
-<li>      <a href='#'>12:00PM</a></li>
-<li>      <a href='#'>1:00PM</a></li>
-<li>      <a href='#'>2:00PM</a></li>
-<li>      <a href='#'>3:00PM</a></li>
-<li>      <a href='#'>4:00PM</a></li>
-<li>      <a href='#'>5:00PM</a></li>
-
-<li>      <a href='#'>6:00PM</a></li>
-<li>      <a href='#'>8:00PM</a></li>
-<li>      <a href='#'>9:00PM</a></li>
-<li>      <a href='#'>10:00PM</a></li>
-<li>      <a href='#'>11:00PM</a></li>
-      <li><a href='#'>12:00AM</a></li>
- <li>     <a href='#'>1:00AM</a></li>
-    <li>  <a href='#'>2:00AM</a></li>
-<li>      <a href='#'>3:00AM</a></li>
-<li>      <a href='#'>3:00AM</a></li>
-<li>      <a href='#'>4:00AM</a></li>
+<li>      <a href='#' data-hour="5">5:00AM</a></li>
+<li>      <a href='#' data-hour="6">6:00AM</a></li>
+<li>      <a href='#' data-hour="7">7:00AM</a></li>
+<li>      <a href='#' data-hour="8">8:00AM</a></li>
+<li>      <a href='#' data-hour="9">9:00AM</a></li>
+<li>      <a href='#' data-hour="10">10:00AM</a></li>
+<li>      <a href='#' data-hour="11">11:00AM</a></li>
+<li>      <a href='#' data-hour="12">12:00PM</a></li>
+<li>      <a href='#' data-hour="13">1:00PM</a></li>
+<li>      <a href='#' data-hour="14">2:00PM</a></li>
+<li>      <a href='#' data-hour="15">3:00PM</a></li>
+<li>      <a href='#' data-hour="16">4:00PM</a></li>
+<li>      <a href='#' data-hour="17">5:00PM</a></li>
+<li>      <a href='#' data-hour="18">6:00PM</a></li>
+<li>      <a href='#' data-hour="19">7:00PM</a></li>
+<li>      <a href='#' data-hour="20">8:00PM</a></li>
+<li>      <a href='#' data-hour="21">9:00PM</a></li>
+<li>      <a href='#' data-hour="22">10:00PM</a></li>
+<li>      <a href='#' data-hour="23">11:00PM</a></li>
+<li>      <a href='#' data-hour="0">12:00AM</a></li>
+<li>      <a href='#' data-hour="1">1:00AM</a></li>
+<li>      <a href='#' data-hour="2">2:00AM</a></li>
+<li>      <a href='#' data-hour="3">3:00AM</a></li>
+<li>      <a href='#' data-hour="4">4:00AM</a></li>
 </ul>
 </div>
 </div>
@@ -299,10 +304,23 @@
 </ul>
 </div></div>
 
+<div class='navbar' style='font-size:14px'>
+  <div class="navbar-inner" style='padding:0px;'>
+    <ul class="nav" data-type='bound'>
+      <li class="active"><a href='#' data-direction="">Both</a></li>
+      <li>      <a href='#' data-direction="1">Inbound</a></li>
+      <li>      <a href='#' data-direction="0">Outbound</a></li>
+    </ul>
+  </div>
+</div>
+
+<!--
 <ul class="breadcrumb" data-type='bound'>
-  <li data-bound='Inbound' data-direction="1" class="active">Inbound <span class="divider">/</span></li>
+  <li data-bound='Both' data-direction="1" class="active">Both <span class="divider">/</span></li>
+  <li data-bound='Inbound' data-direction="1"><a href="#">Inbound</a><span class="divider">/</span></li>
   <li data-bound='Outbound' data-direction="0"><a href="#">Outbound</a></li>
 </ul>
+-->
 
 <ul class="nav nav-tabs nav-stacked" style='font-size:11px;'
     data-type='delaychange'>
@@ -316,6 +334,7 @@
   <li><a data-value="psgr_on" href='#'>Passengers Getting On</a></li>
   <li><a data-value="psgr_off" href='#'>Passengers Getting Off</a></li>
   <li><a data-value="psgr_load" href='#'>Passengers On Bus</a></li>
+  <li><a data-value="none" href='#'>Hide Circles</a></li>
 </ul>
 
        </div>

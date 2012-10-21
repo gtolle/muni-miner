@@ -23,14 +23,20 @@ class Stop < ActiveRecord::Base
     return worst_stops
   end
 
-  def self.get_all_stops( route=nil, direction=nil )
+  def self.get_all_stops( route=nil, direction=nil, hour=nil )
     c = ActiveRecord::Base.connection
 
     whereClause = ""
-    if not route.nil?
-      whereClause = "and route = #{c.quote(route)} and direction = #{c.quote(direction)}"
+    if not route.nil? and not route == ''
+      whereClause += "and route = #{c.quote(route)}"
     end
-
+    if not direction.nil? and not direction == ''
+      whereClause += "and direction = #{c.quote(direction)}"
+    end
+    if not hour.nil? and not hour == ''
+      whereClause += "and hour(act_dep_time) = #{c.quote(hour)}"
+    end
+    
     # avg delay incurred
     all_stops = c.select_all "select route, direction, stop_seq_id, min(stop_id) as stop_id, max(stop_id) as stop_id_max, min(stop_name) as stop_name, avg(latitude) as latitude, avg(longitude) as longitude, avg(dep_dev_mins_interp) as dep_dev_mins_interp, avg(dep_dev_mins_diff) as dep_dev_mins_diff, avg(psgr_on) as psgr_on, avg(psgr_off) as psgr_off, avg(psgr_load) as psgr_load from stops where 1 = 1 #{whereClause} group by route, direction, stop_seq_id order by route, direction, stop_seq_id"
 
