@@ -45,7 +45,7 @@ var gradient = ["#FF0000",
 var map;
 
 var route;
-var direction;
+var direction = 1;
 var trip_date;
 var trip;
 var stops;

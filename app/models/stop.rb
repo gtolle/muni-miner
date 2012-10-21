@@ -28,14 +28,19 @@ class Stop < ActiveRecord::Base
 
     whereClause = ""
     if not route.nil?
-      whereClause = "where route = #{c.quote(route)} and direction = #{c.quote(direction)}"
+      whereClause = "and route = #{c.quote(route)} and direction = #{c.quote(direction)}"
     end
 
     # avg delay incurred
-    all_stops = c.select_all "select route, direction, stop_seq_id, min(stop_id) as stop_id, max(stop_id) as stop_id_max, min(stop_name) as stop_name, avg(latitude) as latitude, avg(longitude) as longitude, avg(dep_dev_mins_interp) as dep_dev_mins_interp, avg(dep_dev_mins_diff) as dep_dev_mins_diff, avg(psgr_on) as psgr_on, avg(psgr_off) as psgr_off, avg(psgr_load) as psgr_load from stops #{whereClause} group by route, direction, stop_seq_id order by route, direction, stop_seq_id"
+    all_stops = c.select_all "select route, direction, stop_seq_id, min(stop_id) as stop_id, max(stop_id) as stop_id_max, min(stop_name) as stop_name, avg(latitude) as latitude, avg(longitude) as longitude, avg(dep_dev_mins_interp) as dep_dev_mins_interp, avg(dep_dev_mins_diff) as dep_dev_mins_diff, avg(psgr_on) as psgr_on, avg(psgr_off) as psgr_off, avg(psgr_load) as psgr_load from stops where 1 = 1 #{whereClause} group by route, direction, stop_seq_id order by route, direction, stop_seq_id"
+
+    # and hour(act_dep_time) >= 14 and hour(act_dep_time) < 15 
+
+    # number of times it delayed more than 2 mins
+    # all_stops = c.select_all "select route, direction, stop_seq_id, min(stop_id) as stop_id, max(stop_id) as stop_id_max, min(stop_name) as stop_name, avg(latitude) as latitude, avg(longitude) as longitude, count(dep_dev_mins_diff) as delay_count from stops where dep_dev_mins_diff < -2 #{whereClause} group by route, direction, stop_seq_id order by route, direction, stop_seq_id"
 
     # worst delay incurred
-    # all_stops = c.select_all "select route, direction, stop_seq_id, min(stop_id) as stop_id, max(stop_id) as stop_id_max, min(stop_name) as stop_name, min(latitude) as latitude, min(longitude) as longitude, min(dep_dev_mins_diff) as dep_dev_mins_diff from stops group by route, direction, stop_seq_id order by route, direction, stop_seq_id"
+    # all_stops = c.select_all "select route, direction, stop_seq_id, min(stop_id) as stop_id, max(stop_id) as stop_id_max, min(stop_name) as stop_name, avg(latitude) as latitude, avg(longitude) as longitude, min(dep_dev_mins_interp) as dep_dev_mins_interp, min(dep_dev_mins_diff) as dep_dev_mins_diff, avg(psgr_on) as psgr_on, avg(psgr_off) as psgr_off, avg(psgr_load) as psgr_load from stops #{whereClause} group by route, direction, stop_seq_id order by route, direction, stop_seq_id"
 
     # stddev of delay incurred
     # all_stops = c.select_all "select route, direction, stop_seq_id, min(stop_id) as stop_id, max(stop_id) as stop_id_max, min(stop_name) as stop_name, min(latitude) as latitude, min(longitude) as longitude, stddev(dep_dev_mins_diff) as dep_dev_mins_diff from stops group by route, direction, stop_seq_id order by route, direction, stop_seq_id"

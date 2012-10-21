@@ -50,21 +50,38 @@
         console.log('type: ' + type);
 
         if (type == 'day') {
+
           drill_link = parent.find('.dropdown-toggle');
           drill_link.text($(this).text() + ' '); 
           drill_link.append('<b class="caret"></b>');
+
         } else if (type == 'hour') {
+
           parent.find('li').removeClass('active');
           $(this).parent().addClass('active'); 
+
         } else if (type == 'route') {
+
           parent.find('li').removeClass('active');
           $(this).parent().addClass('active'); 
-        } else if (type == 'bound') {
+
+          if ($(this).text() == 'All Lines') {
+            route = null;
+            getAllStops();
+          } else {
+            route = $(this).text();
+    	    getAllStops( route, direction );
+          }
+
+      } else if (type == 'bound') {
+
           li = parent.find('.active');
           li.removeClass('active');
+
           link = $('<a></a>');
           link.attr('href', '#');
           link.text(li.attr('data-bound'));
+
           li.empty();
           li.append(link);
 
@@ -80,10 +97,39 @@
           if (pli.attr('data-bound') == 'Inbound') {
             pli.append('<span class="divider"> /</span>'); 
           }
-        } else if (type == 'metric') {
+
+          direction = pli.attr('data-direction');
+          if ( route ) {
+            getAllStops( route, direction );
+          }
+
+        } else if (type == 'delaychange') {
+
           parent.children('.active').removeClass('active');
           $(this).parent().addClass('active');
+
+          delaychange = $(this).data('value');
+	if (allStops.length > 0) {
+	    renderAllStops(allStops);
+	} else {
+	    renderTrip(stops);
+	}
+
+        } else if (type == 'metric') {
+
+          parent.children('.active').removeClass('active');
+          $(this).parent().addClass('active');
+
+          showmetric = $(this).data('value');
+	if (allStops.length > 0) {
+	    renderAllStops(allStops);
+	} else {
+	    renderTrip(stops);
+	}
+
         }
+
+        return false;
       });
 
     </script> 
@@ -176,7 +222,9 @@
   <div class="navbar-inner" style='padding:0px'>
 <ul class="nav" data-type='route'>
 
-<li class="active"><a href='#'>1</a></li>
+<li class="active"><a href='#'>All Lines</a></li>
+
+<li><a href='#'>1</a></li>
 <li><a href='#'>2</a></li>
 <li><a href='#'>3</a></li>
 <li><a href='#'>5</a></li>
@@ -252,19 +300,22 @@
 </div></div>
 
 <ul class="breadcrumb" data-type='bound'>
-  <li data-bound='Inbound'><a href="#">Inbound</a> <span class="divider">/</span></li>
-  <li data-bound='Outbound' class="active">Outbound</li>
+  <li data-bound='Inbound' data-direction="1" class="active">Inbound <span class="divider">/</span></li>
+  <li data-bound='Outbound' data-direction="0"><a href="#">Outbound</a></li>
+</ul>
+
+<ul class="nav nav-tabs nav-stacked" style='font-size:11px;'
+    data-type='delaychange'>
+  <li class='active'><a data-value="dep_dev_mins_diff" href='#'>Change in Delay</a></li>
+  <li><a data-value="dep_dev_mins_interp" href='#'>Total Delay</a></li>
 </ul>
 
 <ul class="nav nav-tabs nav-stacked" style='font-size:11px;'
     data-type='metric'>
-  <li class='active'><a href='#'>(ON+OFF)/(LOAD+1)</a></li>
-  <li><a href='#'>MILES/TIME</a></li>
-  <li><a href='#'>PSGR_MILES / TIME</a></li>
-  <li><a href='#'>Change in Delay</a></li>
-  <li><a href='#'>(ON+OFF)/VELOCITY</a></li>
-  <li><a href='#'>ON/PREV_BUS_SCH_TIME</a></li>
-  <li><a href='#'>(ON+OFF) / departure deviation</a></li>
+  <li class='active'><a data-value="psgr_onoff" href='#'>Passengers Getting On & Off</a></li>
+  <li><a data-value="psgr_on" href='#'>Passengers Getting On</a></li>
+  <li><a data-value="psgr_off" href='#'>Passengers Getting Off</a></li>
+  <li><a data-value="psgr_load" href='#'>Passengers On Bus</a></li>
 </ul>
 
        </div>
