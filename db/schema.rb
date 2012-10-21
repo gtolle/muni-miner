@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20121020162613) do
+ActiveRecord::Schema.define(:version => 20121021062927) do
 
   create_table "stops", :force => true do |t|
     t.string   "route"
@@ -48,6 +48,8 @@ ActiveRecord::Schema.define(:version => 20121020162613) do
     t.decimal  "act_recovery_mins",         :precision => 10, :scale => 2
     t.decimal  "arr_dev_mins",              :precision => 10, :scale => 4
     t.decimal  "dep_dev_mins",              :precision => 10, :scale => 4
+    t.decimal  "dep_dev_mins_interp",       :precision => 10, :scale => 4
+    t.decimal  "dep_dev_mins_diff",         :precision => 10, :scale => 4
   end
 
   add_index "stops", ["route", "direction", "trip_date", "trip", "stop_seq_id"], :name => "stop_primary", :unique => true

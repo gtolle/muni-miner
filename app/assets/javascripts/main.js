@@ -50,8 +50,11 @@ var trip_date;
 var trip;
 var stops;
 
+var delaychange;
+
 var lines = [];
 var circles = [];
+var markers = [];
 
 $(document).ready(function() {
     var initialLat;
@@ -75,6 +78,13 @@ $(document).ready(function() {
     var canvas = document.getElementById("map");
     map = new google.maps.Map(canvas, myOptions);
 
+    delaychange = "dep_dev_mins_diff";
+
+    $(".delaychange").change(function(e) {
+	delaychange = this.value;
+	renderTrip(stops);
+    });
+
     getRoutes();
 });
 
@@ -85,9 +95,11 @@ function getRoutes() {
 
 function renderRoutes(routes) {
     $("#routes").empty();
+
     $.each(routes, function( idx, route ) {
 	$("#routes").append('<li><a href="#" class="route_link" data-route="' + route.route + '" data-direction="' + route.direction + '">' + route.route + ' ' + (route.direction == 0 ? "Outbound" : "Inbound" ) + '</a></li>');
     });
+
     $(".route_link").click(function(e) {
 	var obj = $(this);
 	$("#routes a").removeClass("selected");
@@ -99,12 +111,26 @@ function renderRoutes(routes) {
 }
 
 function getTrips(route, direction) {
+    trip_date = null;
+    trip = null;
+
+    clearLines();
+    clearCircles();
+    clearMarkers();
+
     $.getJSON('/main/trips.json',
 	      {
 		  route: route,
 		  direction: direction
 	      }, 
 	      renderTrips);
+
+    $.getJSON('/main/worst_stops.json',
+	      {
+		  route: route,
+		  direction: direction
+	      }, 
+	      renderWorstStops);
 }
 
 function renderTrips(trips) {
@@ -117,6 +143,24 @@ function renderTrips(trips) {
 	$("#trips a").removeClass("selected");
 	obj.addClass("selected");
 	showTrip( route, direction, obj.data('trip-date'), obj.data('trip') );
+    });
+}
+
+function renderWorstStops(worstStops) {
+    $("#worststops").empty();
+
+    clearMarkers();
+
+    $.each(worstStops, function( idx, stop ) {
+	$("#worststops").append('<li>' + stop.stop_name + '</li>');
+	
+        var marker = new google.maps.Marker({
+            map: map,
+            clickable: false,
+            position: new google.maps.LatLng( stop.latitude, -stop.longitude )
+        });
+
+	markers.push(marker);
     });
 }
 
@@ -140,31 +184,19 @@ function renderTrip(stopsPassed) {
     var max = 0;
     var min = 0;
 
-    var metricName = "dep_dev_mins";
+    var metricName;
 
-    /*
-    min = -10;
-    max = 10;
-    */
-
-    min = -4;
-    max = 4;
-
-    /*
-    $.each(stops, function( idx, stop ) {
-	var metric = parseFloat(stop[metricName]);
-	if ( metric > max ) {
-	    max = metric;
-	}
-	if ( metric < min ) {
-	    min = metric;
-	}
-    });
-    */
+    if (delaychange == "dep_dev_mins_interp") {
+	var metricName = "dep_dev_mins_interp";
+	min = -10;
+	max = 10;
+    } else {
+	var metricName = "dep_dev_mins_diff";
+	min = -4;
+	max = 4;
+    }
 
     var range = max - min;
-
-    //console.log(max, min, range);
 
     var stop = stops[0];
 
@@ -247,4 +279,13 @@ function clearCircles() {
     }
 
     circles = [];
+}
+
+function clearMarkers() {
+    for( var i = 0; i < markers.length; i++ ) {
+        var marker = markers[i];
+        marker.setMap(null);
+    }
+
+    markers = [];
 }
