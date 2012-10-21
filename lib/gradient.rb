@@ -44,6 +44,8 @@ blue = { :r => 0, :g => 0, :b => 255 }
 green = { :r => 0, :g => 255, :b => 0 }
 
 pp gradient(red, green)
+pp gradient(green, blue)
+
 
 
 

@@ -14,17 +14,24 @@ end
 CSV.foreach(ARGV[0], {:headers => true}) do |row|
   next if row["STOP_ID"] == "9999"
   next if row["ROUTE"] == "0"
-
+  
   begin
     puts row
     stop = Stop.new
     params = {}
-    row.each do |k,v|
-      params[k.downcase.to_sym] = v
+    stop.attributes.each do |name, val|
+      next if name == "id"
+      params[name.downcase.to_sym] = row[name.upcase]
     end
+
+    # pp params
+
     params[:trip_date] = DateTime.strptime( params[:trip_date], '%m/%d/%Y' )
+
+    params[:act_move_time] = parse_date( params[:act_move_time] )
     params[:act_stop_time] = parse_date( params[:act_stop_time] )
     params[:act_dep_time] = parse_date( params[:act_dep_time] )
+
     params[:sch_time] = parse_date( params[:sch_time] )
     stop.update_attributes(params)
     stop.save
