@@ -8,58 +8,41 @@
  * You're free to add application-wide styles to this file and they'll appear at the top of the
  * compiled file, but it's generally better to create a new file per style scope.
  *
+ *= require bootstrap
  *= require_self
  */
 
-a:visited { 
-    color: blue;
-}
+      body {
+        padding-top: 60px; /* 60px to make the container go all the way to the bottom of the topbar */
+      }
 
-ul {
-    margin: 0;
-    padding: 0;
-}
+      .navbar-inner {
+        min-height: 0px;
+      }
 
-li {
-    list-style-type: none;
-    margin: 0;
-    padding: 0;
-}
+      .navbar .nav > li > a {
+        padding: 3px;
+        padding-left: 7px;
+        padding-right: 7px;
+      }
 
-a.selected {
-    background: lightblue;
-}
+      .nav-tabs > li > a {
+        padding-top: 3px;
+        padding-bottom: 3px;
+      }
 
-#routeholder {
-    float: left;
-    width: 150px;
-    height: 600px; 
-    overflow-y: scroll;
-    border: 1px solid gray;
-}
+      .nav {
+        margin-bottom: 5px;
+      }
 
-#tripholder {
-    float: left;
-    width: 250px;
-    height: 600px; 
-    overflow-y: scroll;
-    border: 1px solid gray;
-}
+      .navbar {
+        margin-bottom: 5px;
+      }
 
-#map {
-    float: left; 
-    width: 700px; 
-    height: 600px; 
-    border: 1px solid gray;
-}
+      .breadcrumb {
+        margin-bottom: 5px;
+      }
 
-#controls {
-    float: left;
-    width: 200px;
-    margin-left: 10px;
-}
-
-#worststops li {
-    padding-bottom: 1em;
-}
-
+      #map label { width: auto; display:inline; }
+      #map img { max-width: none; }
+      
