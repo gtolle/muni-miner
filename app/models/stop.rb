@@ -34,7 +34,7 @@ class Stop < ActiveRecord::Base
       whereClause += "and direction = #{c.quote(direction)}"
     end
     if not hour.nil? and not hour == ''
-      whereClause += "and hour(act_dep_time) = #{c.quote(hour)}"
+      whereClause += "and extract(hour from act_dep_time) = #{c.quote(hour)}"
     end
     
     # avg delay incurred

@@ -1,8 +1,16 @@
+#development:
+# adapter: mysql2
+# encoding: utf8
+# database: transit_data
+# username: muni
+# password: muni
+# host: 192.168.123.99
+# socket: /tmp/mysql.sock
+
 development:
-  adapter: mysql2
-  encoding: utf8
-  database: transit_data
-  username: muni
-  password: muni
-  host: 192.168.123.99
-  socket: /tmp/mysql.sock
+ adapter: postgresql
+ encoding: unicode
+ database: transit_development
+ host: localhost
+ pool: 5
+
